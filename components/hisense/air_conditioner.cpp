@@ -9,6 +9,11 @@ static const char *const TAG = "climate.air_conditioner";
 void AirConditioner::setup() {
   if (this->flow_control_pin_ != nullptr) {
     this->flow_control_pin_->setup();
+    this->flow_control_pin_->digital_write(false);
+  }
+  if (this->receiver_enable_pin_ != nullptr) {
+    this->receiver_enable_pin_->setup();
+    this->receiver_enable_pin_->digital_write(false);
   }
   this->last_status_change = millis();
   this->status = Status::standby;
@@ -332,6 +337,7 @@ ParseStatus AirConditioner::parse_ac_message_byte_() {
 void AirConditioner::dump_config() {
   ESP_LOGCONFIG(TAG, "Hisense:");
   LOG_PIN("  Flow Control Pin: ", this->flow_control_pin_);
+  LOG_PIN("  Receiver Enable Pin: ", this->receiver_enable_pin_);
 }
 
 void AirConditioner::send_raw(const std::vector<uint8_t> &payload) {
@@ -343,6 +349,9 @@ void AirConditioner::send_raw(const std::vector<uint8_t> &payload) {
   auto const checksum = this->checksum(payload);
   uint8_t cr1 = (checksum & 0x0000ff00) >> 8;
   uint8_t cr2 = (checksum & 0x000000ff);
+
+  if (this->receiver_enable_pin_ != nullptr)
+    this->receiver_enable_pin_->digital_write(true);
 
   if (this->flow_control_pin_ != nullptr)
     this->flow_control_pin_->digital_write(true);
@@ -356,6 +365,9 @@ void AirConditioner::send_raw(const std::vector<uint8_t> &payload) {
 
   if (this->flow_control_pin_ != nullptr)
     this->flow_control_pin_->digital_write(false);
+
+  if (this->receiver_enable_pin_ != nullptr)
+    this->receiver_enable_pin_->digital_write(false);
   waiting_for_response = 1;
 
   last_send_ = millis();

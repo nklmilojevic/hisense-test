@@ -62,7 +62,7 @@ uart:
   baud_rate: 9600
   debug:
     direction: BOTH
-    dummy_receiver: true
+    dummy_receiver: false
     after:
       delimiter: [0xF4, 0xFB]
     sequence:
@@ -74,6 +74,9 @@ climate:
     name: Hisense
     uart_id: mod_bus
     flow_control_pin: PA14 # AEH-W4G2 using half duplex RS-485 chip. Remove if using full duplex chip.
+    # Optional: active-low RS485 receiver-enable pin, if your board routes /RE
+    # separately from DE. Leave unset when /RE is already tied to DE.
+    # receiver_enable_pin: PAxx
     id: hisense_ac
 
 sensor:

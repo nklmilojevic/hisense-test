@@ -21,6 +21,7 @@ AirConditioner = hisense_ac_ns.class_(
     "AirConditioner", uart.UARTDevice, cg.Component, climate.Climate
 )
 CONF_HISENSE_ID = "hisense_id"
+CONF_RECEIVER_ENABLE_PIN = "receiver_enable_pin"
 
 
 # ESPHome API migration:
@@ -47,6 +48,7 @@ CONFIG_SCHEMA = cv.All(
     _BASE_CLIMATE_SCHEMA.extend(
         {
             cv.Optional(CONF_FLOW_CONTROL_PIN): pins.gpio_output_pin_schema,
+            cv.Optional(CONF_RECEIVER_ENABLE_PIN): pins.gpio_output_pin_schema,
         }
     )
     .extend(uart.UART_DEVICE_SCHEMA)
@@ -69,6 +71,10 @@ async def to_code(config):
     if CONF_FLOW_CONTROL_PIN in config:
         pin = await gpio_pin_expression(config[CONF_FLOW_CONTROL_PIN])
         cg.add(var.set_flow_control_pin(pin))
+
+    if CONF_RECEIVER_ENABLE_PIN in config:
+        pin = await gpio_pin_expression(config[CONF_RECEIVER_ENABLE_PIN])
+        cg.add(var.set_receiver_enable_pin(pin))
 
     if CONF_DISPLAY in config:
         cg.add(var.set_display_state(config[CONF_DISPLAY]))

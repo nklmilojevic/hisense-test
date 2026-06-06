@@ -40,11 +40,15 @@ public:
   void set_flow_control_pin(GPIOPin *flow_control_pin) {
     this->flow_control_pin_ = flow_control_pin;
   }
+  void set_receiver_enable_pin(GPIOPin *receiver_enable_pin) {
+    this->receiver_enable_pin_ = receiver_enable_pin;
+  }
   uint8_t waiting_for_response{0};
   void set_display_switch(bool state);
 
 protected:
   GPIOPin *flow_control_pin_{nullptr};
+  GPIOPin *receiver_enable_pin_{nullptr};
 
   enum Status {
     standby,
