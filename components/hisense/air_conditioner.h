@@ -71,6 +71,7 @@ protected:
   uint32_t last_status_change{0};
   uint32_t last_extra_log_print{0};
   bool print_extra_log_in_this_loop{true};
+  bool sent_init_{false}; // one-time DevType handshake guard
 
   bool display_enable {true}; // Status of display screen of AC unit.
 

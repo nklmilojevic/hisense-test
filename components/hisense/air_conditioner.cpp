@@ -14,6 +14,21 @@ void AirConditioner::setup() {
   this->status = Status::standby;
 }
 void AirConditioner::loop() {
+  // One-time DevType handshake — greet the AC so it starts replying. Stock
+  // firmware sends these 0x0B frames to register the module; this component
+  // omitted them, so the AC heard our commands (TX worked) but never replied
+  // (no RX). send_raw() handles the RS485 DE pin + flush, so these go out as
+  // valid frames the AC accepts.
+  if (!this->sent_init_) {
+    this->sent_init_ = true;
+    this->send_raw({0xF4, 0xF5, 0x00, 0x40, 0x0B, 0x00, 0x00, 0x00, 0x00, 0xFE, 0x01, 0x00, 0x00, 0x0A, 0x04, 0x00});
+    this->send_raw({0xF4, 0xF5, 0x00, 0x40, 0x0B, 0x00, 0x00, 0x01, 0x01, 0xFE, 0x01, 0x00, 0x00, 0x07, 0x01, 0x00});
+    this->send_raw({0xF4, 0xF5, 0x00, 0x40, 0x0B, 0x00, 0x00, 0x01, 0x01, 0xFE, 0x01, 0x00, 0x00, 0x66, 0x40, 0x00});
+    this->last_recived_ = millis();
+    this->last_status_change = millis();
+    return;
+  }
+
   if (millis() - this->last_extra_log_print > 3000) {
     print_extra_log_in_this_loop = true;
     this->last_extra_log_print = millis();
